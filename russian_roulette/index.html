@@ -22,13 +22,15 @@
     </div>
 
     <script>
-        let lobbies = {};
+        // Загрузка лобби из localStorage
+        let lobbies = JSON.parse(localStorage.getItem('lobbies')) || {};
 
         document.getElementById('createLobbyForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const lobbyId = document.getElementById('lobbyId').value;
             if (!lobbies[lobbyId]) {
                 lobbies[lobbyId] = { players: [] };
+                localStorage.setItem('lobbies', JSON.stringify(lobbies));
                 alert('Лобби создано! Используйте ID: ' + lobbyId);
             } else {
                 alert('Лобби уже существует!');
@@ -43,6 +45,7 @@
             if (lobbies[lobbyId]) {
                 if (!lobbies[lobbyId].players.includes(playerName)) {
                     lobbies[lobbyId].players.push(playerName);
+                    localStorage.setItem('lobbies', JSON.stringify(lobbies));
                     document.getElementById('lobbyInfo').innerHTML = `<h2>Лобби: ${lobbyId}</h2><p>Игроки: ${lobbies[lobbyId].players.join(', ')}</p><button onclick="startGame('${lobbyId}')">Начать Игра</button>`;
                 } else {
                     alert('Вы уже в лобби!');
@@ -73,6 +76,7 @@
             if (lobbies[lobbyId].players.length === 1) {
                 document.getElementById('lobbyInfo').innerHTML += `<h3>Победитель: ${lobbies[lobbyId].players[0]}</h3>`;
                 delete lobbies[lobbyId]; // Удаляем лобби после игры
+                localStorage.setItem('lobbies', JSON.stringify(lobbies)); // Сохраняем изменения
             }
         }
     </script>
