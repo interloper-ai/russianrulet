@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Русская Рулетка</title>
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Русская Рулетка</h1>
+        <form id="createLobbyForm">
+            <input type="text" id="lobbyId" placeholder="ID Лобби" required>
+            <button type="submit">Создать Лобби</button>
+        </form>
+        <form id="joinLobbyForm">
+            <input type="text" id="playerName" placeholder="Ваше Имя" required>
+            <input type="text" id="joinLobbyId" placeholder="ID Лобби" required>
+            <button type="submit">Присоединиться</button>
+        </form>
+        <div id="lobbyInfo"></div>
+    </div>
+
+    <script>
+        let lobbies = {};
+
+        document.getElementById('createLobbyForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const lobbyId = document.getElementById('lobbyId').value;
+            if (!lobbies[lobbyId]) {
+                lobbies[lobbyId] = { players: [] };
+                alert('Лобби создано! Используйте ID: ' + lobbyId);
+            } else {
+                alert('Лобби уже существует!');
+            }
+        });
+
+        document.getElementById('joinLobbyForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const lobbyId = document.getElementById('joinLobbyId').value;
+            const playerName = document.getElementById('playerName').value;
+
+            if (lobbies[lobbyId]) {
+                if (!lobbies[lobbyId].players.includes(playerName)) {
+                    lobbies[lobbyId].players.push(playerName);
+                    document.getElementById('lobbyInfo').innerHTML = `<h2>Лобби: ${lobbyId}</h2><p>Игроки: ${lobbies[lobbyId].players.join(', ')}</p><button onclick="startGame('${lobbyId}')">Начать Игра</button>`;
+                } else {
+                    alert('Вы уже в лобби!');
+                }
+            } else {
+                alert('Лобби не существует!');
+            }
+        });
+
+        function startGame(lobbyId) {
+            const bulletPosition = Math.floor(Math.random() * 6);
+            let players = lobbies[lobbyId].players;
+            let results = "";
+
+            players.forEach(player => {
+                const chamberChoice = Math.floor(Math.random() * 6); // Случайный выбор игрока
+                results += `${player} выбрал ${chamberChoice}. `;
+                if (chamberChoice === bulletPosition) {
+                    results += `${player} проиграл!<br>`;
+                    // Удаляем игрока из лобби
+                    lobbies[lobbyId].players = lobbies[lobbyId].players.filter(p => p !== player);
+                } else {
+                    results += `${player} выжил!<br>`;
+                }
+            });
+
+            document.getElementById('lobbyInfo').innerHTML = `<h2>Результаты Игры</h2><p>${results}</p>`;
+            if (lobbies[lobbyId].players.length === 1) {
+                document.getElementById('lobbyInfo').innerHTML += `<h3>Победитель: ${lobbies[lobbyId].players[0]}</h3>`;
+                delete lobbies[lobbyId]; // Удаляем лобби после игры
+            }
+        }
+    </script>
+</body>
+</html>
